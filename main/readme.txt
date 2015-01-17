@@ -15,6 +15,7 @@ Table of contents:
 14. HELP! It doesn't work
 15. Modifications of the C++ code
 16. C# tools
+17. MIDI Setup
 A. Acknowledgements
 B. Licence
 
@@ -208,6 +209,11 @@ B. Licence
          -f        |    SHIFT+ALT+f    |    toggles the font outline
   -----------------|-------------------|--------------------------------
     runtime only   |    SHIFT+ALT+s    |    invert driving direction
+  -----------------|-------------------|--------------------------------
+         -nx       |       n/a         |   read from MIDI device x
+  -----------------|-------------------|--------------------------------
+         -cx       |       n/a         |   use MIDI channel x
+                   |                   |   specify again for > 1 channel
   -----------------|-------------------|--------------------------------
 
                           Main HUD parts toggles
@@ -726,6 +732,28 @@ B. Licence
   Original version available here:
   https://www.dropbox.com/sh/cbwyvjrt3x6gxat/AAB5WALzXgIqxADDO1ST-rBqa
   I just made slight modifications and few bug fixes.
+
+17. MIDI Setup
+
+Input from MIDI devices is also supported. This is most likely to be of use with MIDI Mixers and other control surfaces.
+
+To use input from a MIDI device, you need to specify the the device number and channel.
+The MIDI specification supports 127 controller per channel, and 16 channels per device, 
+so reading the data from all 2048 controllers would be needlessly inefficent,
+and hence you must specify which channels you ares using.
+
+For the most common case of just the first channel on the first device run 'trainsim-helper.exe -n0 -c0'.
+Multiple channels can be used by specifying -c multiple times.
+
+The values of controllers 0-127 on Device 0, Channel 0 would then be output to lines 1-128 of
+trainsim-helper-midi.txt, the same as with the joystick interface.
+
+*** To use MIDI data instead of joystick data, you need to replace both instances of the string 
+"trainsim-helper-joystick.txt" in trainsim-helper-joystick.lua with "trainsim-helper-midi.txt" ***
+
+The software understands Control Change messages, which are mapped from 0-127 to 0.0-1.0
+Note On/Note Off messages are also supported and treated as setting the corresponding controller value 
+to 1.0 and 0.0 respectively
 
 A. Acknowledgements
 

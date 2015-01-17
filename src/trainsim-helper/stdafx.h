@@ -20,6 +20,7 @@
 #include <d3dx9.h>
 #include <dwmapi.h>
 #include <TlHelp32.h>
+#include <mmsystem.h>
 
 // C RunTime Header Files
 #include <stdlib.h>

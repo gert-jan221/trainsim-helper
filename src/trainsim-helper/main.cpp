@@ -4,6 +4,7 @@
 #include "System.h"
 #include "Joystick.h"
 #include "Overlay.h"
+#include "Midi.h"
 
 HWND hWnd;
 MARGINS margin = {0, 800, 0, 600};
@@ -29,6 +30,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 	}
 
 	bool bUseJoystick = true;
+	int nMidiController = -1;
+	UINT16 uMidiChannels = 0;
 	int nArgCount;
 	LPSTR *pArgList;
 
@@ -40,6 +43,26 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 		if (strcmp(pArgList[i]+1, "j") == 0)
 			bUseJoystick = !bUseJoystick;
+
+		if (pArgList[i][1] == 'n')
+		{
+			if (isdigit(pArgList[i][2]))
+			{
+				int nController = atoi(pArgList[i] + 2);
+				if (nController >= 0)
+					nMidiController = nController;
+			}
+		}
+
+		if (pArgList[i][1] == 'c')
+		{
+			if (isdigit(pArgList[i][2]))
+			{
+				int nChannel = atoi(pArgList[i] + 2);
+				if (nChannel >= 0 && nChannel < 16)
+					uMidiChannels |= (1 << nChannel);
+			}
+		}
 
 		if (strcmp(pArgList[i]+1, "v") == 0)
 			ToggleDisplaySection(0);
@@ -132,6 +155,10 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		if (FAILED(InitDirectInput()))
 			ExitProcess(0);
 
+	if (nMidiController >= 0)
+		if (FAILED(InitMidi(nMidiController, uMidiChannels, hWnd)))
+			ExitProcess(0);
+
 	bool fDone = false;
 
 	while(!fDone)
@@ -157,6 +184,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 		RenderOverlay();
 		if (bUseJoystick)
 			UpdateJoystick();
+		if (nMidiController >= 0)
+			UpdateMidi();
 
 		while(PeekMessage(&msg, NULL, 0, 0, PM_REMOVE))
 		{
@@ -174,6 +203,8 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 	if (bUseJoystick)
 		FreeDirectInput();
+	if (nMidiController >= 0)
+		FreeMidi();
 
 	return msg.wParam;
 }
@@ -181,7 +212,7 @@ int WINAPI WinMain(HINSTANCE hInstance,
 
 LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 {
-	switch(message)
+	switch (message)
 	{
 	case WM_PAINT:
 		DwmExtendFrameIntoClientArea(hWnd, &margin);
@@ -200,6 +231,9 @@ LRESULT CALLBACK WindowProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lPara
 			ToggleInvert();
 		else if (wParam == 202)
 			ToggleFontOutline();
+		break;
+	case MM_MIM_DATA:
+		OnMidiData((char)lParam & 0x000000FF, (char)(lParam >> 8) & 0x000000FF, (char)(lParam >> 16) & 0x000000FF);
 		break;
 	}
 

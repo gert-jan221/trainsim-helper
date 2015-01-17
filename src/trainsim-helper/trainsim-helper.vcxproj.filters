@@ -16,6 +16,9 @@
     <ClCompile Include="System.cpp">
       <Filter>Sources</Filter>
     </ClCompile>
+    <ClCompile Include="Midi.cpp">
+      <Filter>Sources</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Config.h">
@@ -40,6 +43,9 @@
       <Filter>Headers</Filter>
     </ClInclude>
     <ClInclude Include="Value.h">
+      <Filter>Headers</Filter>
+    </ClInclude>
+    <ClInclude Include="Midi.h">
       <Filter>Headers</Filter>
     </ClInclude>
   </ItemGroup>
